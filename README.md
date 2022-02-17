@@ -22,20 +22,28 @@ Input files can be gzipped files (.gz).
 ## Input
 `infile1`:
       Input file name of GEM Model 1 output. Example: Phase2.ARIC.AA.HDL.LTST.M1.COMBINED.chr22.out (for separate files by each chromosome), or Phase2.ARIC.AA.HDL.LTST.M1.COMBINED.all.out (one file for all results).
+      
 `infile2`:
       Input file name of GEM Model 2 output. Example: Phase2.ARIC.AA.HDL.LTST.M2.COMBINED.chr22.out (for separate files by each chromosome), or Phase2.ARIC.AA.HDL.LTST.M2.COMBINED.all.out (one file for all results).
+      
 `snpinfofile`:
       SNP info file name. It should at least contain the following information: SNPID, INFO, IMPUTED (see analysis plans). Example: chr22.info.gz (for separate files by each chromosome), or snpinfo.txt (one file for all results).
+      
 `outfile`:
       Output file name (without .gz). The results will be gzipped. Example: PHASE2.ARIC.AA.HDL.LTST.COMBINED.20220216.txt (the final gzipped output file would be PHASE2.ARIC.AA.HDL.LTST.COMBINED.20220216.txt.gz).
+      
 `Ename`:
       Variable name for the environmental exposure used in the gene-environment interaction analyses, as shown in your GEM output (NOTE: this is CaSE-senSItiVe). Example: LTST, STST, or ltst, stst.
+      
 `SNPIDname`:
       SNPID column name in your `snpinfofile`. Example: SNP.
+      
 `INFOname`:
       INFO column name in your `snpinfofile`. Example: Rsq.
+      
 `IMPUTEDname`:
       IMPUTED column name in your `snpinfofile`. Example: Genotyped.
+      
 `snpinfofile_delim`:
       Delimiter in your `snpinfofile`. Example: tab, space or , (comma).
 
