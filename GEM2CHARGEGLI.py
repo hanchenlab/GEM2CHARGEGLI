@@ -22,7 +22,7 @@ snpinfofile = str(sys.argv[3]) # SNP info file should at least contain the follo
 # e.g., Phase2.ARIC.AA.HDL.LTST.M1.COMBINED.chr22.out
 # and Phase2.ARIC.AA.HDL.LTST.M2.COMBINED.chr22.out
 # and chr22.info.gz
-# If you have concatenated results from all 22 autosomes into a single file, just provide two single file names for Models 1 and 2 here (without "chr22")
+# If you have concatenated results from all 22 autosomes into a single file, just provide three single file names for Models 1 and 2 here (without "chr22")
 # e.g., Phase2.ARIC.AA.HDL.LTST.M1.COMBINED.all.out
 # and Phase2.ARIC.AA.HDL.LTST.M2.COMBINED.all.out
 # and snpinfo.txt
@@ -31,9 +31,10 @@ outfile = str(sys.argv[4]) # your output file name (without .gz), the results wi
 # the final gzipped file would be PHASE2.ARIC.AA.HDL.LTST.COMBINED.20220216.txt.gz
 Ename = str(sys.argv[5]) # variable name for the environmental exposure used in the gene-environment interaction analyses, as shown in your GEM output (NOTE: this is CaSE-senSItiVe)
 # e.g., LTST, STST, or ltst, stst
-SNPIDname = str(sys.argv[6]) # SNPID column name in snpinfofile, e.g., SNPID
-INFOname = str(sys.argv[7]) # INFO column name in snpinfofile, e.g., INFO
-IMPUTEDname = str(sys.argv[8]) # IMPUTED column name in snpinfofile, e.g., IMPUTED
+SNPIDname = str(sys.argv[6]) # SNPID column name in snpinfofile, e.g., SNP
+INFOname = str(sys.argv[7]) # INFO column name in snpinfofile, e.g., Rsq
+IMPUTEDname = str(sys.argv[8]) # IMPUTED column name in snpinfofile, e.g., Genotyped
+# NOTE: if the IMPUTED column is coded in your snpinfofile (instead of using "Imputed" and "Genotyped" as values), please make sure that 1 = Imputed and 0 = Genotyped
 snpinfofile_delim = str(sys.argv[9]) # delimiter for the snpinfofile, e.g., tab, space or ,
 na_string = "."
 maf_cutoff = 0.001
@@ -125,7 +126,7 @@ if not "chr22" in infile1 and not "chr22" in infile2 and not "chr22" in snpinfof
         if line2 == "":
             break
         for i in range(len(fields2)):
-            if fields2[i].upper() == "NA" or fields1[i].upper() == "NAN" or fields2[i].upper() == "-NAN" or fields2[i].upper() == "INF":
+            if fields2[i].upper() == "NA" or fields2[i].upper() == "NAN" or fields2[i].upper() == "-NAN" or fields2[i].upper() == "INF":
                 fields2[i] = na_string
         line_ct = line_ct + 1
         if fields1[columns1["SNPID"]] != fields2[columns2["SNPID"]]:
@@ -260,7 +261,7 @@ elif "chr22" in infile1 and "chr22" in infile2 and "chr22" in snpinfofile:
             if line2 == "":
                 break
             for i in range(len(fields2)):
-                if fields2[i].upper() == "NA" or fields1[i].upper() == "NAN" or fields2[i].upper() == "-NAN" or fields2[i].upper() == "INF":
+                if fields2[i].upper() == "NA" or fields2[i].upper() == "NAN" or fields2[i].upper() == "-NAN" or fields2[i].upper() == "INF":
                     fields2[i] = na_string
             line_ct = line_ct + 1
             if fields1[columns1["SNPID"]] != fields2[columns2["SNPID"]]:
