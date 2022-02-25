@@ -2,14 +2,18 @@
 
 ###################################
 ### Copyright (C) 2022 Han Chen ###
-### version 0.1, Feb 16, 2022   ###
+### version 0.2, Feb 25, 2022   ###
 ###################################
 
 # NOTE: this script is used to convert GEM (v1.4.1 or later) output to the meta-analysis-ready format for Phase2 CHARGE Gene-Lifestyle Interactions projects
 # Please run using python2
+# You can check the python version using
+# python --version
 # Example command:
 # python GEM2CHARGEGLI.py Phase2.ARIC.AA.HDL.LTST.M1.COMBINED.chr22.out Phase2.ARIC.AA.HDL.LTST.M2.COMBINED.chr22.out chr22.info.gz PHASE2.ARIC.AA.HDL.LTST.COMBINED.20220216.txt LTST SNP Rsq Genotyped tab
 # For questions or comments, please contact Han.Chen.2 AT uth.tmc.edu
+# CHANGES:
+# v0.2: fixed a minor KeyError bug (thanks to Raymond)
 
 import sys
 import gzip
@@ -164,7 +168,7 @@ if not "chr22" in infile1 and not "chr22" in infile2 and not "chr22" in snpinfof
             print "AF in Model 1 GEM output: %s" % fields1[columns1["AF"]]
             print "AF in Model 2 GEM output: %s" % fields2[columns2["AF"]]
             sys.exit(1)
-        if not info[fields1[columns1["SNPID"]]] or not imputed[fields1[columns1["SNPID"]]]:
+        if not fields1[columns1["SNPID"]] in info or not fields1[columns1["SNPID"]] in imputed:
             continue
         if fields1[columns1["AF"]] == na_string or float(fields1[columns1["AF"]]) < maf_cutoff or float(fields1[columns1["AF"]]) > 1 - maf_cutoff:
             continue
@@ -299,7 +303,7 @@ elif "chr22" in infile1 and "chr22" in infile2 and "chr22" in snpinfofile:
                 print "AF in Model 1 GEM output: %s" % fields1[columns1["AF"]]
                 print "AF in Model 2 GEM output: %s" % fields2[columns2["AF"]]
                 sys.exit(1)
-            if not info[fields1[columns1["SNPID"]]] or not imputed[fields1[columns1["SNPID"]]]:
+            if not fields1[columns1["SNPID"]] in info or not fields1[columns1["SNPID"]] in imputed:
                 continue
             if fields1[columns1["AF"]] == na_string or float(fields1[columns1["AF"]]) < maf_cutoff or float(fields1[columns1["AF"]]) > 1 - maf_cutoff:
                 continue
