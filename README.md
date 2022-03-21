@@ -1,7 +1,7 @@
 # GEM2CHARGEGLI (Conversion tool from GEM output to meta-analysis-ready format for CHARGE GLI projects)
 
 ## Description
-This python script is used to convert <a href="https://github.com/large-scale-gxe-methods/GEM">GEM</a> (v1.4.1 or later) output to the meta-analysis-ready format for Phase2 CHARGE Gene-Lifestyle Interactions projects. Please run using python2 (instead of python3). You can check your python version using
+This python script is used to convert <a href="https://github.com/large-scale-gxe-methods/GEM">GEM</a> (v1.4.1 or later) output to the meta-analysis-ready format for Phase2 CHARGE Gene-Lifestyle Interactions projects. Please run using python2 (instead of python3; a python3 version is available <a href="https://github.com/pancong419/CHARGE-GLI">here</a>). You can check your python version using
 ```
 python --version
 ```
