@@ -56,7 +56,7 @@ python GEM2CHARGEGLI.py Phase2.ARIC.AA.HDL.LTST.M1.COMBINED.chr22.out Phase2.ARI
 ```
 
 ## Version
-The current version is v0.2 (February 25, 2022).
+The current version is v0.3 (April 15, 2022).
 
 ## License
 GPL-3.

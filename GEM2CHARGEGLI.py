@@ -2,7 +2,7 @@
 
 ###################################
 ### Copyright (C) 2022 Han Chen ###
-### version 0.2, Feb 25, 2022   ###
+### version 0.3, Apr 15, 2022   ###
 ###################################
 
 # NOTE: this script is used to convert GEM (v1.4.1 or later) output to the meta-analysis-ready format for Phase2 CHARGE Gene-Lifestyle Interactions projects
@@ -14,6 +14,7 @@
 # For questions or comments, please contact Han.Chen.2 AT uth.tmc.edu
 # CHANGES:
 # v0.2: fixed a minor KeyError bug (thanks to Raymond)
+# v0.3: add support for quantitative E (thanks to Michael)
 
 import sys
 import gzip
@@ -103,6 +104,10 @@ if not "chr22" in infile1 and not "chr22" in infile2 and not "chr22" in snpinfof
     columns1 = {}
     for i in range(len(fields1)):
         columns1[fields1[i]] = i
+    if not "AF_" + Ename + "_0" in columns1 or not "AF_" + Ename + "_1" in columns1 or not "N_" + Ename + "_1" in columns1:
+        quantE = True
+    else:
+        quantE = False
     if infile2.endswith(".gz"):
         infile2_handle = gzip.open(infile2, "rb")
     else:
@@ -113,7 +118,10 @@ if not "chr22" in infile1 and not "chr22" in infile2 and not "chr22" in snpinfof
     columns2 = {}
     for i in range(len(fields2)):
         columns2[fields2[i]] = i
-    outfile_handle.write("SNPID\tCHR\tPOS\tINFO\tIMPUTED\tEFFECT_ALLELE\tNON_EFFECT_ALLELE\tEAF_ALL\tEAF_E0\tEAF_E1\tN\tN_EXP\tBETA_SNP_M2\tSE_SNP_M2\tP_SNP_M2\tBETA_SNP_M1\tSE_SNP_M1_MB\tP_SNP_M1_MB\tSE_SNP_M1_ROBUST\tP_SNP_M1_ROBUST\tBETA_INT\tSE_INT_MB\tP_INT_MB\tSE_INT_ROBUST\tP_INT_ROBUST\tP_JOINT_MB\tCOV_SNP_INT_MB\tP_JOINT_ROBUST\tCOV_SNP_INT_ROBUST\n")
+    if quantE:
+        outfile_handle.write("SNPID\tCHR\tPOS\tINFO\tIMPUTED\tEFFECT_ALLELE\tNON_EFFECT_ALLELE\tEAF_ALL\tN\tBETA_SNP_M2\tSE_SNP_M2\tP_SNP_M2\tBETA_SNP_M1\tSE_SNP_M1_MB\tP_SNP_M1_MB\tSE_SNP_M1_ROBUST\tP_SNP_M1_ROBUST\tBETA_INT\tSE_INT_MB\tP_INT_MB\tSE_INT_ROBUST\tP_INT_ROBUST\tP_JOINT_MB\tCOV_SNP_INT_MB\tP_JOINT_ROBUST\tCOV_SNP_INT_ROBUST\n")
+    else:
+        outfile_handle.write("SNPID\tCHR\tPOS\tINFO\tIMPUTED\tEFFECT_ALLELE\tNON_EFFECT_ALLELE\tEAF_ALL\tEAF_E0\tEAF_E1\tN\tN_EXP\tBETA_SNP_M2\tSE_SNP_M2\tP_SNP_M2\tBETA_SNP_M1\tSE_SNP_M1_MB\tP_SNP_M1_MB\tSE_SNP_M1_ROBUST\tP_SNP_M1_ROBUST\tBETA_INT\tSE_INT_MB\tP_INT_MB\tSE_INT_ROBUST\tP_INT_ROBUST\tP_JOINT_MB\tCOV_SNP_INT_MB\tP_JOINT_ROBUST\tCOV_SNP_INT_ROBUST\n")
     line_ct = 1
     while line1 and line2:
         line1 = infile1_handle.readline()
@@ -182,7 +190,10 @@ if not "chr22" in infile1 and not "chr22" in infile2 and not "chr22" in snpinfof
         else:
             p_snp_m1_mb = "{:.6}".format(stats.chi2.sf((float(fields1[columns1["Beta_G"]])/float(fields1[columns1["SE_Beta_G"]]))**2, 1))
             p_snp_m1_robust = "{:.6}".format(stats.chi2.sf((float(fields1[columns1["Beta_G"]])/float(fields1[columns1["robust_SE_Beta_G"]]))**2, 1))
-        outfile_handle.write(fields1[columns1["SNPID"]] + "\t" + fields1[columns1["CHR"]] + "\t" + fields1[columns1["POS"]] + "\t" + info[fields1[columns1["SNPID"]]] + "\t" + imputed[fields1[columns1["SNPID"]]] + "\t" + fields1[columns1["Effect_Allele"]] + "\t" + fields1[columns1["Non_Effect_Allele"]] + "\t" + fields1[columns1["AF"]] + "\t" + fields1[columns1["AF_" + Ename + "_0"]] + "\t" + fields1[columns1["AF_" + Ename + "_1"]] + "\t" + fields1[columns1["N_Samples"]] + "\t" + fields1[columns1["N_" + Ename + "_1"]] + "\t" + fields2[columns2["Beta_Marginal"]] + "\t" + fields2[columns2["SE_Beta_Marginal"]] + "\t" + fields2[columns2["P_Value_Marginal"]] + "\t" + fields1[columns1["Beta_G"]] + "\t" + fields1[columns1["SE_Beta_G"]] + "\t" + p_snp_m1_mb + "\t" + fields1[columns1["robust_SE_Beta_G"]] + "\t" + p_snp_m1_robust + "\t" + fields1[columns1["Beta_G-" + Ename]] + "\t" + fields1[columns1["SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["P_Value_Interaction"]] + "\t" + fields1[columns1["robust_SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Interaction"]] + "\t" + fields1[columns1["P_Value_Joint"]] + "\t" + fields1[columns1["Cov_Beta_G_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Joint"]] + "\t" + fields1[columns1["robust_Cov_Beta_G_G-" + Ename]] + "\n")
+        if quantE:
+            outfile_handle.write(fields1[columns1["SNPID"]] + "\t" + fields1[columns1["CHR"]] + "\t" + fields1[columns1["POS"]] + "\t" + info[fields1[columns1["SNPID"]]] + "\t" + imputed[fields1[columns1["SNPID"]]] + "\t" + fields1[columns1["Effect_Allele"]] + "\t" + fields1[columns1["Non_Effect_Allele"]] + "\t" + fields1[columns1["AF"]] + "\t" + fields1[columns1["N_Samples"]] + "\t" + fields2[columns2["Beta_Marginal"]] + "\t" + fields2[columns2["SE_Beta_Marginal"]] + "\t" + fields2[columns2["P_Value_Marginal"]] + "\t" + fields1[columns1["Beta_G"]] + "\t" + fields1[columns1["SE_Beta_G"]] + "\t" + p_snp_m1_mb + "\t" + fields1[columns1["robust_SE_Beta_G"]] + "\t" + p_snp_m1_robust + "\t" + fields1[columns1["Beta_G-" + Ename]] + "\t" + fields1[columns1["SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["P_Value_Interaction"]] + "\t" + fields1[columns1["robust_SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Interaction"]] + "\t" + fields1[columns1["P_Value_Joint"]] + "\t" + fields1[columns1["Cov_Beta_G_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Joint"]] + "\t" + fields1[columns1["robust_Cov_Beta_G_G-" + Ename]] + "\n")
+        else:
+            outfile_handle.write(fields1[columns1["SNPID"]] + "\t" + fields1[columns1["CHR"]] + "\t" + fields1[columns1["POS"]] + "\t" + info[fields1[columns1["SNPID"]]] + "\t" + imputed[fields1[columns1["SNPID"]]] + "\t" + fields1[columns1["Effect_Allele"]] + "\t" + fields1[columns1["Non_Effect_Allele"]] + "\t" + fields1[columns1["AF"]] + "\t" + fields1[columns1["AF_" + Ename + "_0"]] + "\t" + fields1[columns1["AF_" + Ename + "_1"]] + "\t" + fields1[columns1["N_Samples"]] + "\t" + fields1[columns1["N_" + Ename + "_1"]] + "\t" + fields2[columns2["Beta_Marginal"]] + "\t" + fields2[columns2["SE_Beta_Marginal"]] + "\t" + fields2[columns2["P_Value_Marginal"]] + "\t" + fields1[columns1["Beta_G"]] + "\t" + fields1[columns1["SE_Beta_G"]] + "\t" + p_snp_m1_mb + "\t" + fields1[columns1["robust_SE_Beta_G"]] + "\t" + p_snp_m1_robust + "\t" + fields1[columns1["Beta_G-" + Ename]] + "\t" + fields1[columns1["SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["P_Value_Interaction"]] + "\t" + fields1[columns1["robust_SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Interaction"]] + "\t" + fields1[columns1["P_Value_Joint"]] + "\t" + fields1[columns1["Cov_Beta_G_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Joint"]] + "\t" + fields1[columns1["robust_Cov_Beta_G_G-" + Ename]] + "\n")
     infile1_handle.close()
     infile2_handle.close()
     
@@ -248,7 +259,14 @@ elif "chr22" in infile1 and "chr22" in infile2 and "chr22" in snpinfofile:
         for i in range(len(fields2)):
             columns2[fields2[i]] = i
         if chr == 1:
-            outfile_handle.write("SNPID\tCHR\tPOS\tINFO\tIMPUTED\tEFFECT_ALLELE\tNON_EFFECT_ALLELE\tEAF_ALL\tEAF_E0\tEAF_E1\tN\tN_EXP\tBETA_SNP_M2\tSE_SNP_M2\tP_SNP_M2\tBETA_SNP_M1\tSE_SNP_M1_MB\tP_SNP_M1_MB\tSE_SNP_M1_ROBUST\tP_SNP_M1_ROBUST\tBETA_INT\tSE_INT_MB\tP_INT_MB\tSE_INT_ROBUST\tP_INT_ROBUST\tP_JOINT_MB\tCOV_SNP_INT_MB\tP_JOINT_ROBUST\tCOV_SNP_INT_ROBUST\n")
+            if not "AF_" + Ename + "_0" in columns1 or not "AF_" + Ename + "_1" in columns1 or not "N_" + Ename + "_1" in columns1:
+                quantE = True
+            else:
+                quantE = False
+            if quantE:
+                outfile_handle.write("SNPID\tCHR\tPOS\tINFO\tIMPUTED\tEFFECT_ALLELE\tNON_EFFECT_ALLELE\tEAF_ALL\tN\tBETA_SNP_M2\tSE_SNP_M2\tP_SNP_M2\tBETA_SNP_M1\tSE_SNP_M1_MB\tP_SNP_M1_MB\tSE_SNP_M1_ROBUST\tP_SNP_M1_ROBUST\tBETA_INT\tSE_INT_MB\tP_INT_MB\tSE_INT_ROBUST\tP_INT_ROBUST\tP_JOINT_MB\tCOV_SNP_INT_MB\tP_JOINT_ROBUST\tCOV_SNP_INT_ROBUST\n")
+            else:
+                outfile_handle.write("SNPID\tCHR\tPOS\tINFO\tIMPUTED\tEFFECT_ALLELE\tNON_EFFECT_ALLELE\tEAF_ALL\tEAF_E0\tEAF_E1\tN\tN_EXP\tBETA_SNP_M2\tSE_SNP_M2\tP_SNP_M2\tBETA_SNP_M1\tSE_SNP_M1_MB\tP_SNP_M1_MB\tSE_SNP_M1_ROBUST\tP_SNP_M1_ROBUST\tBETA_INT\tSE_INT_MB\tP_INT_MB\tSE_INT_ROBUST\tP_INT_ROBUST\tP_JOINT_MB\tCOV_SNP_INT_MB\tP_JOINT_ROBUST\tCOV_SNP_INT_ROBUST\n")
         line_ct = 1
         while line1 and line2:
             line1 = infile1_handle.readline()
@@ -317,7 +335,10 @@ elif "chr22" in infile1 and "chr22" in infile2 and "chr22" in snpinfofile:
             else:
                 p_snp_m1_mb = "{:.6}".format(stats.chi2.sf((float(fields1[columns1["Beta_G"]])/float(fields1[columns1["SE_Beta_G"]]))**2, 1))
                 p_snp_m1_robust = "{:.6}".format(stats.chi2.sf((float(fields1[columns1["Beta_G"]])/float(fields1[columns1["robust_SE_Beta_G"]]))**2, 1))
-            outfile_handle.write(fields1[columns1["SNPID"]] + "\t" + fields1[columns1["CHR"]] + "\t" + fields1[columns1["POS"]] + "\t" + info[fields1[columns1["SNPID"]]] + "\t" + imputed[fields1[columns1["SNPID"]]] + "\t" + fields1[columns1["Effect_Allele"]] + "\t" + fields1[columns1["Non_Effect_Allele"]] + "\t" + fields1[columns1["AF"]] + "\t" + fields1[columns1["AF_" + Ename + "_0"]] + "\t" + fields1[columns1["AF_" + Ename + "_1"]] + "\t" + fields1[columns1["N_Samples"]] + "\t" + fields1[columns1["N_" + Ename + "_1"]] + "\t" + fields2[columns2["Beta_Marginal"]] + "\t" + fields2[columns2["SE_Beta_Marginal"]] + "\t" + fields2[columns2["P_Value_Marginal"]] + "\t" + fields1[columns1["Beta_G"]] + "\t" + fields1[columns1["SE_Beta_G"]] + "\t" + p_snp_m1_mb + "\t" + fields1[columns1["robust_SE_Beta_G"]] + "\t" + p_snp_m1_robust + "\t" + fields1[columns1["Beta_G-" + Ename]] + "\t" + fields1[columns1["SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["P_Value_Interaction"]] + "\t" + fields1[columns1["robust_SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Interaction"]] + "\t" + fields1[columns1["P_Value_Joint"]] + "\t" + fields1[columns1["Cov_Beta_G_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Joint"]] + "\t" + fields1[columns1["robust_Cov_Beta_G_G-" + Ename]] + "\n")
+            if quantE:
+                outfile_handle.write(fields1[columns1["SNPID"]] + "\t" + fields1[columns1["CHR"]] + "\t" + fields1[columns1["POS"]] + "\t" + info[fields1[columns1["SNPID"]]] + "\t" + imputed[fields1[columns1["SNPID"]]] + "\t" + fields1[columns1["Effect_Allele"]] + "\t" + fields1[columns1["Non_Effect_Allele"]] + "\t" + fields1[columns1["AF"]] + "\t" + fields1[columns1["N_Samples"]] + "\t" + fields2[columns2["Beta_Marginal"]] + "\t" + fields2[columns2["SE_Beta_Marginal"]] + "\t" + fields2[columns2["P_Value_Marginal"]] + "\t" + fields1[columns1["Beta_G"]] + "\t" + fields1[columns1["SE_Beta_G"]] + "\t" + p_snp_m1_mb + "\t" + fields1[columns1["robust_SE_Beta_G"]] + "\t" + p_snp_m1_robust + "\t" + fields1[columns1["Beta_G-" + Ename]] + "\t" + fields1[columns1["SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["P_Value_Interaction"]] + "\t" + fields1[columns1["robust_SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Interaction"]] + "\t" + fields1[columns1["P_Value_Joint"]] + "\t" + fields1[columns1["Cov_Beta_G_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Joint"]] + "\t" + fields1[columns1["robust_Cov_Beta_G_G-" + Ename]] + "\n")
+            else:
+                outfile_handle.write(fields1[columns1["SNPID"]] + "\t" + fields1[columns1["CHR"]] + "\t" + fields1[columns1["POS"]] + "\t" + info[fields1[columns1["SNPID"]]] + "\t" + imputed[fields1[columns1["SNPID"]]] + "\t" + fields1[columns1["Effect_Allele"]] + "\t" + fields1[columns1["Non_Effect_Allele"]] + "\t" + fields1[columns1["AF"]] + "\t" + fields1[columns1["AF_" + Ename + "_0"]] + "\t" + fields1[columns1["AF_" + Ename + "_1"]] + "\t" + fields1[columns1["N_Samples"]] + "\t" + fields1[columns1["N_" + Ename + "_1"]] + "\t" + fields2[columns2["Beta_Marginal"]] + "\t" + fields2[columns2["SE_Beta_Marginal"]] + "\t" + fields2[columns2["P_Value_Marginal"]] + "\t" + fields1[columns1["Beta_G"]] + "\t" + fields1[columns1["SE_Beta_G"]] + "\t" + p_snp_m1_mb + "\t" + fields1[columns1["robust_SE_Beta_G"]] + "\t" + p_snp_m1_robust + "\t" + fields1[columns1["Beta_G-" + Ename]] + "\t" + fields1[columns1["SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["P_Value_Interaction"]] + "\t" + fields1[columns1["robust_SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Interaction"]] + "\t" + fields1[columns1["P_Value_Joint"]] + "\t" + fields1[columns1["Cov_Beta_G_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Joint"]] + "\t" + fields1[columns1["robust_Cov_Beta_G_G-" + Ename]] + "\n")
         infile1_handle.close()
         infile2_handle.close()
 
