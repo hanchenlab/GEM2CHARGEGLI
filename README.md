@@ -64,6 +64,9 @@ GPL-3.
 ## Contact
 Please contact Han Chen (Han.Chen.2 AT uth.tmc.edu) if you have any questions.
 
+## Acknowledgments
+This work was supported by NIH grants R01 HL145025 and R01 HL156991.
+
 ## References
 <p>If you use GEM in your analysis, please cite
 <li>Westerman KE, Pham DT, Hong L, Chen Y, Sevilla-González M, Sung YJ, Sun YV, Morrison AC, Chen H, Manning AK. (2021) GEM: scalable and flexible gene-environment interaction analysis in millions of samples. <em>Bioinformatics</em> <b>37(20):</b>3514-3520. PubMed PMID: <a href="https://www.ncbi.nlm.nih.gov/pubmed/34695175">34695175</a>. PMCID: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8545347/">PMC8545347</a>. DOI: <a href="https://doi.org/10.1093/bioinformatics/btab223">10.1093/bioinformatics/btab223</a>.</li></p>
