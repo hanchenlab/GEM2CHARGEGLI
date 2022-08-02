@@ -2,7 +2,7 @@
 
 ###################################
 ### Copyright (C) 2022 Han Chen ###
-### version 0.3, Apr 15, 2022   ###
+### version 0.4, Aug 2, 2022    ###
 ###################################
 
 # NOTE: this script is used to convert GEM (v1.4.1 or later) output to the meta-analysis-ready format for Phase2 CHARGE Gene-Lifestyle Interactions projects
@@ -14,7 +14,8 @@
 # For questions or comments, please contact Han.Chen.2 AT uth.tmc.edu
 # CHANGES:
 # v0.2: fixed a minor KeyError bug (thanks to Raymond)
-# v0.3: add support for quantitative E (thanks to Michael)
+# v0.3: added support for quantitative E (thanks to Michael)
+# v0.4: fixed a minor bug for missing values (thanks to Aldi and Cong)
 
 import sys
 import gzip
@@ -180,15 +181,13 @@ if not "chr22" in infile1 and not "chr22" in infile2 and not "chr22" in snpinfof
             continue
         if fields1[columns1["AF"]] == na_string or float(fields1[columns1["AF"]]) < maf_cutoff or float(fields1[columns1["AF"]]) > 1 - maf_cutoff:
             continue
-        if fields1[columns1["Beta_G"]] == na_string:
+        if fields1[columns1["Beta_G"]] == na_string or fields1[columns1["SE_Beta_G"]] == na_string or float(fields1[columns1["SE_Beta_G"]]) <= 0:
             p_snp_m1_mb = na_string
-            p_snp_m1_robust = na_string
-        elif fields1[columns1["SE_Beta_G"]] == na_string or float(fields1[columns1["SE_Beta_G"]]) <= 0:
-            p_snp_m1_mb = na_string
-        elif fields1[columns1["robust_SE_Beta_G"]] == na_string or float(fields1[columns1["robust_SE_Beta_G"]]) <= 0:
-            p_snp_m1_robust = na_string
         else:
             p_snp_m1_mb = "{:.6}".format(stats.chi2.sf((float(fields1[columns1["Beta_G"]])/float(fields1[columns1["SE_Beta_G"]]))**2, 1))
+        if fields1[columns1["Beta_G"]] == na_string or fields1[columns1["robust_SE_Beta_G"]] == na_string or float(fields1[columns1["robust_SE_Beta_G"]]) <= 0:
+            p_snp_m1_robust = na_string
+        else:
             p_snp_m1_robust = "{:.6}".format(stats.chi2.sf((float(fields1[columns1["Beta_G"]])/float(fields1[columns1["robust_SE_Beta_G"]]))**2, 1))
         if quantE:
             outfile_handle.write(fields1[columns1["SNPID"]] + "\t" + fields1[columns1["CHR"]] + "\t" + fields1[columns1["POS"]] + "\t" + info[fields1[columns1["SNPID"]]] + "\t" + imputed[fields1[columns1["SNPID"]]] + "\t" + fields1[columns1["Effect_Allele"]] + "\t" + fields1[columns1["Non_Effect_Allele"]] + "\t" + fields1[columns1["AF"]] + "\t" + fields1[columns1["N_Samples"]] + "\t" + fields2[columns2["Beta_Marginal"]] + "\t" + fields2[columns2["SE_Beta_Marginal"]] + "\t" + fields2[columns2["P_Value_Marginal"]] + "\t" + fields1[columns1["Beta_G"]] + "\t" + fields1[columns1["SE_Beta_G"]] + "\t" + p_snp_m1_mb + "\t" + fields1[columns1["robust_SE_Beta_G"]] + "\t" + p_snp_m1_robust + "\t" + fields1[columns1["Beta_G-" + Ename]] + "\t" + fields1[columns1["SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["P_Value_Interaction"]] + "\t" + fields1[columns1["robust_SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Interaction"]] + "\t" + fields1[columns1["P_Value_Joint"]] + "\t" + fields1[columns1["Cov_Beta_G_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Joint"]] + "\t" + fields1[columns1["robust_Cov_Beta_G_G-" + Ename]] + "\n")
@@ -325,15 +324,13 @@ elif "chr22" in infile1 and "chr22" in infile2 and "chr22" in snpinfofile:
                 continue
             if fields1[columns1["AF"]] == na_string or float(fields1[columns1["AF"]]) < maf_cutoff or float(fields1[columns1["AF"]]) > 1 - maf_cutoff:
                 continue
-            if fields1[columns1["Beta_G"]] == na_string:
+            if fields1[columns1["Beta_G"]] == na_string or fields1[columns1["SE_Beta_G"]] == na_string or float(fields1[columns1["SE_Beta_G"]]) <= 0:
                 p_snp_m1_mb = na_string
-                p_snp_m1_robust = na_string
-            elif fields1[columns1["SE_Beta_G"]] == na_string or float(fields1[columns1["SE_Beta_G"]]) <= 0:
-                p_snp_m1_mb = na_string
-            elif fields1[columns1["robust_SE_Beta_G"]] == na_string or float(fields1[columns1["robust_SE_Beta_G"]]) <= 0:
-                p_snp_m1_robust = na_string
             else:
                 p_snp_m1_mb = "{:.6}".format(stats.chi2.sf((float(fields1[columns1["Beta_G"]])/float(fields1[columns1["SE_Beta_G"]]))**2, 1))
+            if fields1[columns1["Beta_G"]] == na_string or fields1[columns1["robust_SE_Beta_G"]] == na_string or float(fields1[columns1["robust_SE_Beta_G"]]) <= 0:
+                p_snp_m1_robust = na_string
+            else:
                 p_snp_m1_robust = "{:.6}".format(stats.chi2.sf((float(fields1[columns1["Beta_G"]])/float(fields1[columns1["robust_SE_Beta_G"]]))**2, 1))
             if quantE:
                 outfile_handle.write(fields1[columns1["SNPID"]] + "\t" + fields1[columns1["CHR"]] + "\t" + fields1[columns1["POS"]] + "\t" + info[fields1[columns1["SNPID"]]] + "\t" + imputed[fields1[columns1["SNPID"]]] + "\t" + fields1[columns1["Effect_Allele"]] + "\t" + fields1[columns1["Non_Effect_Allele"]] + "\t" + fields1[columns1["AF"]] + "\t" + fields1[columns1["N_Samples"]] + "\t" + fields2[columns2["Beta_Marginal"]] + "\t" + fields2[columns2["SE_Beta_Marginal"]] + "\t" + fields2[columns2["P_Value_Marginal"]] + "\t" + fields1[columns1["Beta_G"]] + "\t" + fields1[columns1["SE_Beta_G"]] + "\t" + p_snp_m1_mb + "\t" + fields1[columns1["robust_SE_Beta_G"]] + "\t" + p_snp_m1_robust + "\t" + fields1[columns1["Beta_G-" + Ename]] + "\t" + fields1[columns1["SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["P_Value_Interaction"]] + "\t" + fields1[columns1["robust_SE_Beta_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Interaction"]] + "\t" + fields1[columns1["P_Value_Joint"]] + "\t" + fields1[columns1["Cov_Beta_G_G-" + Ename]] + "\t" + fields1[columns1["robust_P_Value_Joint"]] + "\t" + fields1[columns1["robust_Cov_Beta_G_G-" + Ename]] + "\n")
